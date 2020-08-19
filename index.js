@@ -12,12 +12,14 @@ const xmlInput = fs.readFileSync(arg[2]);
 (async () => {
   try {
     const result = await xml2js.parseStringPromise(xmlInput, { mergeAttrs: false })
+    const x = arg && arg[3] ? arg[3] : 12
+    const y = arg && arg[4] ? arg[4] : 'minutes'
+    const metadataTime = moment(result.gpx.metadata[0].time[0]).subtract(x, y).toDate()
+    result.gpx.metadata[0].time[0] = metadataTime.toISOString()
 
     for (let trkpt of result.gpx.trk[0].trkseg[0].trkpt) {
-      const x = arg && arg[3] ? arg[3] : 12
-      const y = arg && arg[4] ? arg[4] : 'minutes'
-      const newtime = moment(trkpt.time[0]).subtract(x, y).toDate()
-      trkpt.time[0] = newtime.toISOString()
+      const newTime = moment(trkpt.time[0]).subtract(x, y).toDate()
+      trkpt.time[0] = newTime.toISOString()
     }
 
     const builder = new xml2js.Builder()
